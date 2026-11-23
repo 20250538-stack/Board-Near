@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Log in or create a BoardNear account.">
+<title>Login – BoardNear</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-page="login">
+<header><div class="wrap bar">
+<a class="logo" href="index.html"><i></i>BoardNear</a>
+<nav id="nav" aria-label="Main"><a href="find.html">Find a Room</a><a href="post.html"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/><path d="M12 10v6"/><path d="M9 13h6"/></svg>Post a Room</a><a href="index.html#how">How it works</a></nav>
+<div id="auth"></div>
+<button class="ib" id="theme" aria-label="Switch light or dark mode">☾</button>
+<button class="ib" id="menuBtn" aria-label="Open menu" aria-expanded="false">☰</button>
+</div></header>
+
+<main><section><div class="wrap">
+ <div class="authcard" id="authCard">
+  <a class="logo" href="index.html"><i></i>BoardNear</a>
+  <h1 id="aTitle">Login</h1>
+  <p class="sub" id="aSub"></p>
+  <form id="authForm" novalidate>
+   <label id="fName" hidden>Full Name<input type="text" id="aName" autocomplete="name"></label>
+   <label>Email Address<input type="email" id="aEmail" autocomplete="email" inputmode="email"></label>
+   <label><span id="passLbl">Password</span><span class="pw"><input type="password" id="aPass" autocomplete="current-password"><button type="button" class="eye" id="aEye" aria-label="Show password">👁</button></span></label>
+   <label id="fConf" hidden>Confirm Password<input type="password" id="aConf" autocomplete="new-password"></label>
+   <label class="rem" id="fRem"><input type="checkbox" id="aRem"> Remember Me</label>
+   <p class="meta" id="aNote" hidden>This demo resets passwords for accounts made on this device only.</p>
+   <p class="err" id="aErr" role="alert"></p>
+   <button class="btn pri full" id="aBtn" type="submit">Log In</button>
+  </form>
+  <p class="forgot" id="forgotRow"><a href="#" data-mode="forgot">Forgot Your Password?</a></p>
+  <div id="gWrap"><div class="or"><span>or</span></div><div id="gBtn"></div></div>
+ </div>
+</div></section></main>
+
+<footer><div class="wrap">BoardNear · Map data © OpenStreetMap contributors.</div></footer>
+<div class="toast" id="toast" role="status"></div>
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/page-login.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

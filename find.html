@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Browse boarding houses on the map, filter by price, distance, WiFi and bathroom.">
+<title>Find a Room – BoardNear</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-page="find">
+<header><div class="wrap bar">
+<a class="logo" href="index.html"><i></i>BoardNear</a>
+<nav id="nav" aria-label="Main"><a href="find.html" aria-current="page">Find a Room</a><a href="post.html"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/><path d="M12 10v6"/><path d="M9 13h6"/></svg>Post a Room</a><a href="index.html#how">How it works</a></nav>
+<div id="auth"></div>
+<button class="ib" id="theme" aria-label="Switch light or dark mode">☾</button>
+<button class="ib" id="menuBtn" aria-label="Open menu" aria-expanded="false">☰</button>
+</div></header>
+
+<main><section><div class="wrap">
+ <div class="head"><h2>Find a Room</h2><span class="meta" id="result"></span></div>
+ <div class="mapbox findmap"><div id="map" role="region" aria-label="Map of boarding houses near the school"></div>
+ <div class="legend">Tap a pin to see the room · rings: 250 m, 500 m, 1 km</div></div>
+ <div class="chips" id="chips">
+  <button class="chip" data-f="price" aria-pressed="false">Price: under ₱1,500</button>
+  <button class="chip" data-f="dist" aria-pressed="false">Distance: within 500 m</button>
+  <button class="chip" data-f="wifi" aria-pressed="false">WiFi</button>
+  <button class="chip" data-f="bath" aria-pressed="false">Private bathroom</button>
+  <button class="chip" data-f="fav" aria-pressed="false">♥ Saved</button>
+  <select class="chip" id="sort" aria-label="Sort rooms"><option value="dist">Nearest first</option><option value="price">Lowest price</option></select>
+ </div>
+ <div class="grid" id="list"></div>
+</div></section></main>
+
+<footer><div class="wrap">BoardNear · Map data © OpenStreetMap contributors.</div></footer>
+<div class="toast" id="toast" role="status"></div>
+
+<dialog id="dlg" aria-labelledby="dTitle">
+ <div class="dh"><h3 id="dTitle">Room details</h3><button class="ib" id="dClose" aria-label="Close">✕</button></div>
+ <div class="db" id="dBody"></div>
+</dialog>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="js/config.js"></script>
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/maps.js"></script>
+<script src="js/page-find.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
