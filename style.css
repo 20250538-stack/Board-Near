@@ -299,3 +299,6 @@ footer { margin-top: 20px; padding: 26px 0; border-top: 1px solid var(--line); c
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
 }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
+}
