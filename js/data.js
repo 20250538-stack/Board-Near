@@ -34,7 +34,8 @@ const away = room => metersFromSchool(room.lat, room.lng);
 const coords = room => [room.lat, room.lng];
 
 function photoStyle(room, i = room.id) {
-  if (room.photo) return `background-image:url("${esc(room.photo)}")`;
+  // Single quotes here: this text goes inside style="...", so double quotes would cut it short
+  if (room.photo) return `background-image:url('${esc(room.photo)}')`;
   const [from, to] = PLACEHOLDER_COLORS[i % 6];
   return `background:linear-gradient(135deg,${from},${to})`;
 }
