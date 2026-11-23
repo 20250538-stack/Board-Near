@@ -14,7 +14,8 @@ function initInbox() {
   function replyLink(m) {
     const isEmail = m.contact.includes("@");
     return isEmail
-      ? { href: `mailto:${encodeURI(m.contact)}?subject=${encodeURIComponent("Re: " + m.roomName)}`, label: "Reply by email" }
+      ? { href: `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(m.contact)}&su=${encodeURIComponent("Re: " + m.roomName)}`,
+          label: "Reply by email", external: true }
       : { href: `tel:${m.contact.replace(/[^\d+]/g, "")}`, label: "Call" };
   }
 
@@ -26,7 +27,8 @@ function initInbox() {
   <div class="meta">About: ${esc(m.roomName)} · ${esc(m.contact)}</div>
   <p>${esc(m.text)}</p>
   <div class="macts">
-    <a class="btn so" href="${esc(reply.href)}">${reply.label}</a>
+    <a class="btn so" href="${esc(reply.href)}"${reply.external ? ' target="_blank" rel="noopener"' : ""}>${reply.label}</a>
+    <button class="btn so" data-copy="${esc(m.contact)}">Copy ${m.contact.includes("@") ? "email" : "number"}</button>
     <button class="btn so" data-del="${m.id}">Delete</button>
   </div>
 </article>`;
@@ -47,6 +49,13 @@ function initInbox() {
   }
 
   box.addEventListener("click", e => {
+    const copy = e.target.closest("[data-copy]");
+    if (copy) {
+      const text = copy.dataset.copy;
+      (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject())
+        .then(() => toast("Copied: " + text), () => toast("Could not copy. Select the text and copy it."));
+      return;
+    }
     const button = e.target.closest("[data-del]");
     if (!button) return;
     const id = Number(button.dataset.del);
