@@ -2,6 +2,7 @@
 "use strict";
 
 // Shrink the chosen photo so it fits comfortably in browser storage
+// Makes the chosen photo smaller so it fits in browser storage. Returns it as text (data URL).
 function resizePhoto(file, maxWidth = 600) {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file), img = new Image();
@@ -19,6 +20,7 @@ function resizePhoto(file, maxWidth = 600) {
   });
 }
 
+// The Post a Room page. You must be logged in to see the form.
 function initPost() {
   // Signed-out visitors only see the "please log in" box
   if (!user) {
@@ -39,12 +41,13 @@ function initPost() {
   }
   const pickMap = L.map("pick").setView([SCHOOL.lat, SCHOOL.lng], 16);
   addTiles(pickMap);
-  L.circleMarker([SCHOOL.lat, SCHOOL.lng], { radius: 9, color: "#0f3d3e", fillColor: "#f5b700", fillOpacity: 1, weight: 3 })
-    .addTo(pickMap).bindTooltip(SCHOOL.name);
+  // interactive:false so a tap near the school still places the pin
+  L.marker([SCHOOL.lat, SCHOOL.lng], { icon: schoolIcon(), interactive: false, keyboard: false }).addTo(pickMap);
 
   const asCoordinates = (lat, lng) => `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
 
   // Turn the pin into a street address (OpenStreetMap Nominatim), without overwriting what the landlord typed
+  // Asks OpenStreetMap for the street name of the pin and fills the Location box.
   function fillAddress(lat, lng) {
     clearTimeout(lookupTimer);
     lookupTimer = setTimeout(async () => {
@@ -66,6 +69,7 @@ function initPost() {
     }, 400);
   }
 
+  // Puts (or moves) the pin, shows the distance, and fills the address.
   function setPin(lat, lng) {
     pos = [lat, lng];
     if (pin) {
@@ -82,6 +86,7 @@ function initPost() {
   pickMap.on("click", e => setPin(e.latlng.lat, e.latlng.lng));
   locationBox.addEventListener("input", () => { locationIsAuto = false; });
 
+  // Uses the phone/computer location as the pin.
   $("#useMe").onclick = () => {
     if (!navigator.geolocation) {
       errorBox.textContent = "Your browser can't get your location. Tap the map instead.";
@@ -94,6 +99,7 @@ function initPost() {
 
   /* ---- Photo ---- */
   drop.onclick = () => $("#pFile").click();
+  // When a photo is chosen: shrink it and show a preview.
   $("#pFile").onchange = async e => {
     const file = e.target.files[0];
     if (!file) return;
@@ -109,6 +115,7 @@ function initPost() {
   };
 
   /* ---- Submit ---- */
+  // Checks the form, saves the new room, then goes to Find a Room.
   $("#postForm").onsubmit = e => {
     e.preventDefault();
     const name = $("#pName").value.trim(), loc = locationBox.value.trim(), price = Number($("#pPrice").value);
