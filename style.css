@@ -368,3 +368,9 @@ footer { margin-top: 20px; padding: 26px 0; border-top: 1px solid var(--line); c
   .avatar { display: none; }
   .bar { gap: 8px; }
 }
+
+/* School marker on the maps */
+.school-pin {
+  display: grid; place-items: center; background: var(--pine); border-radius: 8px;
+  font-size: 18px; line-height: 1; box-shadow: 0 2px 8px rgba(0,0,0,.35);
+}
