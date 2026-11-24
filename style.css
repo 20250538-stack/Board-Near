@@ -299,6 +299,72 @@ footer { margin-top: 20px; padding: 26px 0; border-top: 1px solid var(--line); c
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
 }
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
+
+/* ---- Messenger-style chat (Messages page) ---- */
+.messenger {
+  display: grid; grid-template-columns: 340px 1fr; max-width: none;
+  height: min(76vh, 640px); min-height: 460px;
+  background: var(--surface); border: 1.5px solid var(--line); border-radius: 20px; overflow: hidden;
+}
+.convs { display: flex; flex-direction: column; gap: 2px; padding-bottom: 8px; overflow-y: auto; border-right: 1px solid var(--line); }
+.convs-head { padding: 16px 18px 8px; font: 800 1.5rem "Bricolage Grotesque", sans-serif; }
+.conv {
+  display: flex; align-items: center; gap: 12px; width: calc(100% - 12px); margin: 0 6px; padding: 10px 12px;
+  border: 0; border-radius: 12px; background: none; text-align: left; cursor: pointer;
+}
+.conv:hover, .conv.on { background: var(--land); }
+.cbox { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.crow { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; }
+.cname { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.ctime { flex: none; color: var(--muted); font-size: .75rem; }
+.cprev { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: .88rem; }
+.conv.unread .cname, .conv.unread .cprev { color: var(--ink); font-weight: 700; }
+.dot {
+  display: inline-grid; place-items: center; flex: none; min-width: 20px; height: 20px; padding: 0 6px;
+  border-radius: 99px; background: var(--pine); color: var(--pine-ink); font-size: .72rem; font-weight: 700;
+}
+.av {
+  display: grid; place-items: center; flex: none; width: 46px; height: 46px; border-radius: 50%;
+  color: #fff; font-weight: 700; font-size: 1.1rem; text-shadow: 0 1px 2px rgba(0,0,0,.25);
+}
+.av.sm { width: 28px; height: 28px; font-size: .8rem; }
+.av.ghost { background: none; }
+
+.chat { display: flex; flex-direction: column; min-width: 0; min-height: 0; padding: 0; }
+.chat-head { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.who { flex: 1; min-width: 0; display: grid; }
+.who span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: .82rem; }
+.back { display: none; }
+.bubbles { flex: 1; display: flex; flex-direction: column; gap: 2px; padding: 14px; overflow-y: auto; }
+.stamp { align-self: center; margin: 10px 0 6px; color: var(--muted); font-size: .75rem; }
+.mrow { display: flex; align-items: flex-end; gap: 8px; }
+.mrow.me { justify-content: flex-end; }
+.mrow.en { margin-bottom: 8px; }
+.bub { max-width: 70%; padding: 8px 14px; border-radius: 18px; background: var(--land); line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
+.mrow.me .bub { background: var(--pine); color: var(--pine-ink); }
+/* Messages in the same group have a flatter corner on the side of the sender */
+.mrow.them:not(.st) .bub { border-top-left-radius: 6px; }
+.mrow.them:not(.en) .bub { border-bottom-left-radius: 6px; }
+.mrow.me:not(.st) .bub { border-top-right-radius: 6px; }
+.mrow.me:not(.en) .bub { border-bottom-right-radius: 6px; }
+.seen { align-self: flex-end; margin: 0 4px; color: var(--muted); font-size: .72rem; }
+.composer { display: flex; align-items: flex-end; gap: 8px; padding: 10px 12px; border-top: 1px solid var(--line); }
+.composer textarea { flex: 1; max-height: 120px; padding: 10px 16px; border-color: transparent; border-radius: 22px; background: var(--land); line-height: 1.4; resize: none; }
+.send { display: grid; place-items: center; flex: none; width: 42px; height: 42px; border: 0; border-radius: 50%; background: var(--pine); color: var(--pine-ink); cursor: pointer; }
+.send:disabled { opacity: .35; cursor: default; }
+.send svg { width: 20px; height: 20px; }
+
+@media (max-width: 820px) {
+  .messenger { grid-template-columns: 1fr; height: calc(100vh - 160px); }
+  .messenger[data-view="list"] .chat { display: none; }
+  .messenger[data-view="chat"] .convs { display: none; }
+  .back { display: inline-grid; place-items: center; }
+  .bub { max-width: 82%; }
+}
+
+/* Keep the header buttons on one line on small phones */
+.btn.so { white-space: nowrap; }
+@media (max-width: 480px) {
+  .avatar { display: none; }
+  .bar { gap: 8px; }
 }
