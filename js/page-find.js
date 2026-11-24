@@ -1,6 +1,7 @@
 /* Find a Room page: map, filters, room list, room dialog, messaging a landlord. */
 "use strict";
 
+// The Find a Room page. Everything inside works with the map, the room list and the room pop-up.
 function initFind() {
   const list = $("#list"), dialog = $("#dlg");
   const filters = {};          // which filter chips are on
@@ -11,7 +12,7 @@ function initFind() {
   if (mapsAvailable()) {
     map = L.map("map").setView([SCHOOL.lat, SCHOOL.lng], 16);
     addTiles(map);
-    L.marker([SCHOOL.lat, SCHOOL.lng], { title: SCHOOL.name }).addTo(map).bindTooltip(SCHOOL.name);
+    L.marker([SCHOOL.lat, SCHOOL.lng], { icon: schoolIcon(), title: SCHOOL.name }).addTo(map).bindTooltip(SCHOOL.name);
     [250, 500, 1000].forEach(radius =>
       L.circle([SCHOOL.lat, SCHOOL.lng], { radius, color: "#0f3d3e", weight: 1.5, dashArray: "5 6", fillOpacity: 0 }).addTo(map));
     markerLayer = L.layerGroup().addTo(map);
@@ -19,6 +20,7 @@ function initFind() {
     $("#map").innerHTML = '<p class="empty">The map could not load. Check your internet connection and refresh.</p>';
   }
 
+  // Shows one marker on the map for each room that matches the filters.
   function drawMap(visible) {
     if (!map) return;
     markerLayer.clearLayers();
@@ -37,6 +39,7 @@ function initFind() {
   }
 
   /* ---- Room list ---- */
+  // Returns only the rooms that pass the filter chips, sorted by price or distance.
   function visibleRooms() {
     const matches = rooms.filter(r =>
       (!filters.price || r.price < 1500) &&
@@ -49,6 +52,7 @@ function initFind() {
     return matches.sort($("#sort").value === "price" ? byPrice : byDistance);
   }
 
+  // Builds the HTML for one room card.
   function cardHTML(room) {
     const saved = favs.has(room.id);
     return `
@@ -73,6 +77,7 @@ function initFind() {
       : '<div class="empty">No rooms posted yet.<br><a class="btn pri" href="post.html"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/><path d="M12 10v6"/><path d="M9 13h6"/></svg>Post a Room</a></div>';
   }
 
+  // Redraws the room list, the room count and the map. Call it after anything changes.
   function render() {
     const visible = visibleRooms();
     list.innerHTML = visible.length ? visible.map(cardHTML).join("") : emptyHTML();
@@ -85,6 +90,23 @@ function initFind() {
   }
 
   /* ---- Room dialog ---- */
+  // The box under the room details: log in first, then chat with the landlord on the Messages page
+  // The box under the room details: log in first, then message the landlord.
+  function messageAreaHTML(room) {
+    if (!room.owner) return '<p class="meta">This old listing has no owner account, so it cannot receive messages.</p>';
+    if (!user) return '<div class="lbl">Message the landlord</div><p class="meta">Log in to chat with the landlord right here on the site.</p><a class="btn pri" href="login.html?next=find.html">Log in to message</a>';
+    if (isMine(room)) return '<p class="meta">This is your room. Messages from students show up on the Messages page.</p>';
+    return `
+<form class="msg-form" id="msgForm" novalidate>
+  <div class="lbl">Message the landlord</div>
+  <div class="qs">${QUICK_QUESTIONS.map(q => `<button type="button" class="chip" data-q="${esc(q)}">${esc(q)}</button>`).join("")}</div>
+  <textarea id="mMsg" rows="3" placeholder="Type your message, like when you want to visit" aria-label="Message"></textarea>
+  <p class="err" id="mErr" role="alert"></p>
+  <button class="btn pri end">Send message</button>
+</form>`;
+  }
+
+  // Builds the HTML for the room pop-up.
   function roomDialogHTML(room) {
     const minutes = Math.max(1, Math.round(away(room) / WALK_METERS_PER_MIN));
     const thumbs = room.photo ? "" : `<div class="thumbs">${[0, 1, 2].map(i =>
@@ -103,38 +125,29 @@ ${thumbs}
   <span class="tag">${room.bath ? "Own bathroom" : "Shared bathroom"}</span>
 </div>
 <a class="btn" href="${mapsLink}" target="_blank" rel="noopener">Open in Google Maps</a>
-<form class="msg-form" id="msgForm" novalidate>
-  <div class="lbl">Ask the landlord a question</div>
-  <div class="qs">${QUICK_QUESTIONS.map(q => `<button type="button" class="chip" data-q="${esc(q)}">${esc(q)}</button>`).join("")}</div>
-  <input type="text" id="mName" placeholder="Your name" aria-label="Your name" value="${esc(user ? user.name : "")}">
-  <input type="text" id="mContact" placeholder="Your email or phone number" aria-label="Your email or phone number" value="${esc(user ? user.email : "")}">
-  <textarea id="mMsg" rows="3" placeholder="Type your question, like when you want to visit" aria-label="Message"></textarea>
-  <p class="err" id="mErr" role="alert"></p>
-  <button class="btn pri end">Send message</button>
-</form>`;
+${messageAreaHTML(room)}`;
   }
 
+  // Saves the renter's message as a chat and opens the chat page.
   function sendMessage(room) {
-    const name = $("#mName").value.trim();
-    const contact = $("#mContact").value.trim();
     const text = $("#mMsg").value.trim();
-    const fail = (message, field) => { $("#mErr").textContent = message; $(field).focus(); };
-
-    if (!name) return fail("Enter your name so the landlord knows who is asking.", "#mName");
-    if (contact.length < 7) return fail("Add your email or phone number so the landlord can reply.", "#mContact");
-    if (text.length < 10) return fail("Write a message of at least 10 characters, like when you want to visit.", "#mMsg");
-
-    msgs.push({ id: uid(), roomId: room.id, roomName: room.name, owner: room.owner || "",
-                from: name, contact, text, t: Date.now(), read: false });
-    if (!saveMsgs()) {
-      msgs.pop();
+    if (text.length < 3) {
+      $("#mErr").textContent = "Write your message first.";
+      $("#mMsg").focus();
+      return;
+    }
+    chats.push({ id: uid(), roomId: room.id, roomName: room.name, owner: room.owner, ownerName: room.ownerName || "Landlord",
+                 renter: user.email, renterName: user.name, from: "renter", text, t: Date.now(), read: false });
+    if (!saveChats()) {
+      chats.pop();
       $("#mErr").textContent = "Could not save the message (browser storage is full).";
       return;
     }
-    dialog.close();
-    toast(`Message sent to the landlord of ${room.name}`);
+    // Go straight to the chat so the renter sees the conversation
+    location.href = "messages.html#" + encodeURIComponent(`${room.id}|${user.email}`);
   }
 
+  // Opens the pop-up for the room with this id.
   function openRoom(id) {
     const room = rooms.find(r => r.id === id);
     if (!room) return;
@@ -142,7 +155,8 @@ ${thumbs}
     highlightSelected();
 
     $("#dBody").innerHTML = roomDialogHTML(room);
-    $("#msgForm").onsubmit = e => { e.preventDefault(); sendMessage(room); };
+    const form = $("#msgForm");
+    if (form) form.onsubmit = e => { e.preventDefault(); sendMessage(room); };
     $("#dBody").querySelectorAll("[data-q]").forEach(button => {
       button.onclick = () => {
         const box = $("#mMsg");
@@ -153,6 +167,7 @@ ${thumbs}
     dialog.showModal();
   }
 
+  // Deletes a room, but only if it belongs to the logged-in user.
   function deleteRoom(id) {
     const room = rooms.find(r => r.id === id);
     if (!room || !isMine(room)) return;
@@ -165,6 +180,7 @@ ${thumbs}
     toast("Room deleted");
   }
 
+  // Heart button: save or unsave a room.
   function toggleFavorite(id) {
     if (favs.has(id)) favs.delete(id); else favs.add(id);
     saveFavs();
@@ -172,6 +188,7 @@ ${thumbs}
   }
 
   /* ---- Events ---- */
+  // One click listener for the whole list: it checks if the heart, Delete or room name was clicked.
   list.addEventListener("click", e => {
     const fav = e.target.closest("[data-fav]");
     const del = e.target.closest("[data-del]");
